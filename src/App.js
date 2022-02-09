@@ -1,13 +1,8 @@
-import jsPDF from 'jspdf';
-import PDFObject from 'pdfobject';
 import { useEffect, useState } from 'react';
 import './App.css';
 import { ImagePreview } from './ImagePreview';
 import { ImageStats } from './ImageStats';
 import { pdfPreview } from './pdfPreview';
-import { tiler } from './tiler';
-
-const DEBUG = false;
 
 // Paper sizes in mm
 const PAPER_SIZES = [
@@ -40,8 +35,6 @@ const PAPER_SIZES = [
     height: 297,
   },
 ];
-
-const GRID_SIZE = 50;
 
 function App() {
   const [ file, setFile ] = useState(/** @type {File} */(null));

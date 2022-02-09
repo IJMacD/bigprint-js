@@ -96,9 +96,9 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
             ctx.resetTransform();
         }
     }, [
-        image,
+        image, paper,
         paper.width, paper.height,
-        overlap,
+        dpi, overlap,
         grid,
     ]);
 
@@ -153,7 +153,7 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
                 textAlign: "left",
                 background: "#EEEEEE",
             }}>
-                <img src={src} style={{ width: imageWidth }} />
+                <img src={src} style={{ width: imageWidth }} alt={`${paper.label} Preview`} />
                 <canvas
                     ref={canvasRef}
                     width={screenWidth * devicePixelRatio + border * 2 * devicePixelRatio}
