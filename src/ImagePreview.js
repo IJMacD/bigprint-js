@@ -33,7 +33,7 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
     }, [image, paper, dpi, overlap, grid]);
 
     useEffect(() => {
-        if (!image) {
+        if (!image || dpi <= 0 || overlap >= paper.width || overlap >= paper.height) {
             return;
         }
 

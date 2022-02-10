@@ -57,3 +57,21 @@
   flex: 1;
   height: 100vh;
 }
+
+dialog::backdrop {
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-close {
+  border: none;
+  background: none;
+  position: absolute;
+  right: 2em;
+  cursor: pointer;
+}
+
+.measure-modal {
+  margin: 1em auto;
+  min-width: 600px;
+}
+

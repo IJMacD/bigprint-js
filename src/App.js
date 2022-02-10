@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { ImagePreview } from './ImagePreview';
 import { ImageStats } from './ImageStats';
+import { MeasureModal } from './MeasureModal';
 import { pdfPreview } from './pdfPreview';
 
 // Paper sizes in mm
@@ -45,6 +46,8 @@ function App() {
   const [ overlap, setOverlap ] = useState(10);
   const [ showGrid, setShowGrid ] = useState(false);
 
+  const [ isMeasureModalVisible, setIsMeasureModalVisible ] = useState(false);
+
   useEffect(() => {
     if (file) {
       file.arrayBuffer().then(buffer => {
@@ -71,13 +74,16 @@ function App() {
   }
 
   function handleGenerate (image, paper) {
-      if (!image) {
-          return;
-      }
+    if (!image) {
+      return;
+    }
 
-      window.scrollTo(0, document.getElementById("pdf-preview").offsetTop);
+    const outputEl  = document.getElementById("pdf-preview");
+    window.scrollTo(0, outputEl.offsetTop);
 
-      setTimeout(() => pdfPreview(image, dpi, paper, overlap, showGrid, "#pdf-preview"), 0);
+    // Hmmmm, very much non-react...
+    outputEl.innerHTML = `<p style="margin: 1em 0.5em;">Generating...</p>`;
+    setTimeout(() => pdfPreview(image, dpi, paper, overlap, showGrid, "#pdf-preview"), 0);
   }
 
   return (
@@ -88,6 +94,12 @@ function App() {
           <input type="file" onChange={handleFileChange} accept=".png,.jpg" />
 
           <ImageStats src={previewURL} dpi={dpi} />
+          {
+            previewURL &&
+              <p>
+                <button onClick={() => setIsMeasureModalVisible(true)}>Measure Image</button>
+              </p>
+          }
 
           <label>
             Image Density
@@ -136,7 +148,7 @@ function App() {
               />
             </div>
           )) :
-          <p>Choose image file to begin.</p>
+          <p>Choose an image file to begin.</p>
       }
       </div>
 
@@ -145,6 +157,10 @@ function App() {
           file && <p>Press "Generate" to generate PDF</p>
         }
       </div>
+
+      {
+        isMeasureModalVisible && <MeasureModal src={previewURL} dpi={dpi} onClose={() => setIsMeasureModalVisible(false)} onSave={dpi => { setDPI(dpi); setIsMeasureModalVisible(false); }} />
+      }
 
     </div>
   );
