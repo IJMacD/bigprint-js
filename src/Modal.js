@@ -5,7 +5,8 @@ export function Modal ({ className = "", onClose = () => {}, children }) {
     const ref = useRef();
 
     useEffect(() => {
-        if (ref.current) {
+        // @ts-ignore
+        if (ref.current && !ref.current.open) {
             // @ts-ignore
             ref.current.showModal();
         }
