@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-export function useImage (src) {
-    const [ image, setImage ] = useState(/** @type {HTMLImageElement} */(null));
+export function useImage(src) {
+    const [image, setImage] = useState(/** @type {HTMLImageElement?} */(null));
 
     useEffect(() => {
         if (src) {
