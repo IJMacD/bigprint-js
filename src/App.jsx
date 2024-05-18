@@ -37,16 +37,24 @@ const PAPER_SIZES = [
   },
 ];
 
+/**
+ * @typedef {"Dashed"|"Solid"} OverlapStyle
+ * @typedef {"None"|"NE"|"NW"|"SE"|"SW"|"Both"} OverlapPosition
+ * @typedef {"None"|"Front"|"Back"} GridPlacement
+ */
+
 function App() {
-  const [ file, setFile ] = useState(/** @type {File} */(null));
-  const [ previewURL, setPreviewURL ] = useState(/** @type {string} */(null));
-  const [ dpi, setDPI ] = useState(96);
+  const [file, setFile] = useState(/** @type {File} */(null));
+  const [previewURL, setPreviewURL] = useState(/** @type {string} */(null));
+  const [dpi, setDPI] = useState(96);
   // const [ selectedPaperSize, setSelectedPaperSize ] = useState(0);
   // Overlap in mm
-  const [ overlap, setOverlap ] = useState(10);
-  const [ showGrid, setShowGrid ] = useState(false);
+  const [overlap, setOverlap] = useState(10);
+  const [gridPlacement, setGridPlacement] = useState(/** @type {GridPlacement} */("None"));
+  const [overlapStyle, setOverlapStyle] = useState(/** @type {OverlapStyle} */("Dashed"));
+  const [overlapPosition, setOverlapPosition] = useState(/** @type {OverlapPosition} */("Both"));
 
-  const [ isMeasureModalVisible, setIsMeasureModalVisible ] = useState(false);
+  const [isMeasureModalVisible, setIsMeasureModalVisible] = useState(false);
 
   useEffect(() => {
     if (file) {
@@ -69,21 +77,30 @@ function App() {
    *
    * @param {import('react').ChangeEvent<HTMLInputElement>} e
    */
-  function handleFileChange (e) {
+  function handleFileChange(e) {
     setFile(e.target.files[0]);
   }
 
-  function handleGenerate (image, paper) {
+  /**
+   * @param {HTMLImageElement} image
+   * @param {import('./ImagePreview').Paper} paper
+   */
+  function handleGenerate(image, paper) {
     if (!image) {
       return;
     }
 
-    const outputEl  = document.getElementById("pdf-preview");
-    window.scrollTo(0, outputEl.offsetTop);
+    const outputEl = document.getElementById("pdf-preview");
 
-    // Hmmmm, very much non-react...
-    outputEl.innerHTML = `<p style="margin: 1em 0.5em;">Generating...</p>`;
-    setTimeout(() => pdfPreview(image, dpi, paper, overlap, showGrid, "#pdf-preview"), 0);
+    if (outputEl) {
+      window.scrollTo(0, outputEl.offsetTop);
+
+      // Hmmmm, very much non-react...
+      outputEl.innerHTML = `<p style="margin: 1em 0.5em;">Generating...</p>`;
+      setTimeout(() => {
+        pdfPreview(image, dpi, paper, overlap, gridPlacement, overlapPosition, overlapStyle, "#pdf-preview");
+      }, 0);
+    }
   }
 
   return (
@@ -96,9 +113,9 @@ function App() {
           <ImageStats src={previewURL} dpi={dpi} />
           {
             previewURL &&
-              <p>
-                <button onClick={() => setIsMeasureModalVisible(true)}>Measure Image</button>
-              </p>
+            <p>
+              <button onClick={() => setIsMeasureModalVisible(true)}>Measure Image</button>
+            </p>
           }
 
           <label>
@@ -118,13 +135,36 @@ function App() {
             <input type="number" value={overlap} onChange={e => setOverlap(+e.target.value)} /> mm
           </label>
           <label>
-            Show Diagonal Grid
-            <input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} />
+            Show Diagonal Grid{' '}
+            <select value={gridPlacement} onChange={e => setGridPlacement(e.target.value)}>
+              <option value="None">None</option>
+              <option value="Front">Front</option>
+              <option value="Back">Back</option>
+            </select>
+          </label>
+          <label>
+            Overlap Marker Position{' '}
+            <select value={overlapPosition} onChange={e => setOverlapPosition(e.target.value)}>
+              <option value="None">None</option>
+              <option value="NE">NE</option>
+              <option value="NW">NW</option>
+              <option value="SE">SE</option>
+              <option value="SW">SW</option>
+              <option value="Both">Both</option>
+            </select>
+          </label>
+          <label>
+            Overlap Style{' '}
+            <select value={overlapStyle} onChange={e => setOverlapStyle(e.target.value)}>
+              <option value="Dashed">Dashed</option>
+              <option value="Solid">Solid</option>
+            </select>
           </label>
         </div>
+
         <div className="credits">
           <p>
-            Inspired by <a href="https://woodgears.ca/bigprint/">Matthias Wandel</a>.<br/>
+            Inspired by <a href="https://woodgears.ca/bigprint/">Matthias Wandel</a>.<br />
             His version is paid but far more featured.
           </p>
           <p>View source on <a href="https://gitgub.com/IJMacD/bigprint-js">GitHub</a>.</p>
@@ -132,24 +172,26 @@ function App() {
       </div>
 
       <div className="previews">
-      {
-        file ?
-          PAPER_SIZES.map((p, i) => (
-            <div key={i}>
-              <h2>{p.label}</h2>
-              <ImagePreview
-                src={previewURL}
-                paper={p}
-                dpi={dpi}
-                overlap={overlap}
-                grid={showGrid}
-                onGenerate={handleGenerate}
-                setOverlap={setOverlap}
-              />
-            </div>
-          )) :
-          <p>Choose an image file to begin.</p>
-      }
+        {
+          file ?
+            PAPER_SIZES.map((p, i) => (
+              <div key={i}>
+                <h2>{p.label}</h2>
+                <ImagePreview
+                  src={previewURL}
+                  paper={p}
+                  dpi={dpi}
+                  overlap={overlap}
+                  grid={gridPlacement !== "None"}
+                  onGenerate={handleGenerate}
+                  setOverlap={setOverlap}
+                  overlapPosition={overlapPosition}
+                  overlapStyle={overlapStyle}
+                />
+              </div>
+            )) :
+            <p>Choose an image file to begin.</p>
+        }
       </div>
 
       <div id="pdf-preview">

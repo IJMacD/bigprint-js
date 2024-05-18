@@ -12,14 +12,16 @@ import { useImage } from "./useImage";
  * @param {Paper} props.paper
  * @param {number} props.dpi
  * @param {number} props.overlap
+ * @param {import("./App").OverlapPosition} props.overlapPosition
+ * @param {import("./App").OverlapStyle} props.overlapStyle
  * @param {boolean} props.grid
  * @param {(image: HTMLImageElement, paper: Paper) => void} props.onGenerate
  * @param {(overlap: number) => void} props.setOverlap
  */
-export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setOverlap }) {
+export function ImagePreview({ src, paper, dpi, overlap, grid, onGenerate, overlapStyle, overlapPosition }) {
     const image = useImage(src);
-    const canvasRef = useRef(/** @type {HTMLCanvasElement} */(null));
-    const [ generated, setGenerated ] = useState(false);
+    const canvasRef = useRef(/** @type {HTMLCanvasElement?} */(null));
+    const [generated, setGenerated] = useState(false);
 
     // CSS pixels
     const screenWidth = 500;
@@ -30,7 +32,7 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
 
     useEffect(() => {
         setGenerated(false);
-    }, [image, paper, dpi, overlap, grid]);
+    }, [image, paper, dpi, overlap, grid, overlapPosition, overlapStyle]);
 
     useEffect(() => {
         if (!image || dpi <= 0 || overlap >= paper.width || overlap >= paper.height) {
@@ -51,6 +53,8 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
             const paperHeightPixels = paper.height * screenPixelsPerMM;
 
             const ctx = canvasRef.current.getContext("2d");
+
+            if (!ctx) return;
 
             ctx.translate(border * devicePixelRatio, border * devicePixelRatio);
 
@@ -85,7 +89,7 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
                     ctx.lineTo(p, 0);
 
                     // NW-SE
-                    ctx.moveTo(0, h-p);
+                    ctx.moveTo(0, h - p);
                     ctx.lineTo(p, h);
                 }
                 ctx.strokeStyle = "#008000";
@@ -114,9 +118,11 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
     const paperRatio = spec.totalHeightMM / spec.totalWidthMM;
     const screenHeight = screenWidth * paperRatio;
 
-    function handleGenerate () {
-        setGenerated(true);
-        onGenerate(image, paper);
+    function handleGenerate() {
+        if (image) {
+            setGenerated(true);
+            onGenerate(image, paper);
+        }
     }
 
     // function handleMaximiseOverlap () {
@@ -178,6 +184,6 @@ export function ImagePreview ({ src, paper, dpi, overlap, grid, onGenerate, setO
     );
 }
 
-function plural (n, singular, plural = singular + "s") {
+function plural(n, singular, plural = singular + "s") {
     return n === 1 ? singular : plural;
 }
