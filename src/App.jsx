@@ -167,7 +167,7 @@ function App() {
             Inspired by <a href="https://woodgears.ca/bigprint/">Matthias Wandel</a>.<br />
             His version is paid but far more featured.
           </p>
-          <p>View source on <a href="https://gitgub.com/IJMacD/bigprint-js">GitHub</a>.</p>
+          <p>View source on <a href="https://github.com/IJMacD/bigprint-js">GitHub</a>.</p>
         </div>
       </div>
 
